@@ -14,3 +14,5 @@ override.tf.json
 *.log
 .DS_Store
 *.dockerignore
+terraform.tfvars
+terraform.tfvars
