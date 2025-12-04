@@ -1,30 +1,30 @@
-variable "vpc_cidr" {
-  description = "CIDR block for the VPC"
+variable "name_prefix" {
   type        = string
+  description = "Prefix for all VPC resources"
 }
 
-variable "availability_zones" {
-  description = "List of availability zones for subnets"
-  type        = list(string)
+variable "vpc_cidr" {
+  type        = string
+  description = "CIDR block for the VPC"
 }
 
 variable "public_subnet_cidrs" {
-  description = "CIDR blocks for public subnets"
   type        = list(string)
+  description = "CIDR blocks for public subnets (one per AZ)"
 }
 
 variable "private_subnet_cidrs" {
-  description = "CIDR blocks for private subnets"
   type        = list(string)
+  description = "CIDR blocks for private subnets (one per AZ)"
 }
 
-variable "name_prefix" {
-  description = "Prefix for naming VPC resources"
-  type        = string
+variable "availability_zones" {
+  type        = list(string)
+  description = "Availability zones to spread subnets across"
 }
 
 variable "tags" {
-  description = "Tags to apply to VPC resources"
   type        = map(string)
   default     = {}
+  description = "Base tags to apply to all resources"
 }

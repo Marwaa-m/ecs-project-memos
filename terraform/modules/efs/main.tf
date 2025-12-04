@@ -1,12 +1,11 @@
 resource "aws_efs_file_system" "this" {
-  # Using AWS defaults: generalPurpose + bursting
+
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-efs"
   })
 }
 
 resource "aws_efs_mount_target" "this" {
-  # use static keys (indexes) so Terraform is happy at plan time
   for_each = {
     for idx, subnet_id in var.private_subnet_ids :
     idx => subnet_id

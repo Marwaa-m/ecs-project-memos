@@ -1,4 +1,3 @@
-# Application Load Balancer
 resource "aws_lb" "this" {
   name               = "${var.name_prefix}-alb"
   internal           = false
@@ -11,7 +10,7 @@ resource "aws_lb" "this" {
   })
 }
 
-# Target group for ECS service
+
 resource "aws_lb_target_group" "this" {
   name        = "${var.name_prefix}-tg"
   port        = var.target_port
@@ -19,15 +18,42 @@ resource "aws_lb_target_group" "this" {
   vpc_id      = var.vpc_id
   target_type = "ip"
 
+
+  health_check {
+    path                = "/healthz"
+    matcher             = "200"
+    interval            = 30
+    timeout             = 5
+    unhealthy_threshold = 3
+    healthy_threshold   = 2
+  }
+
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-tg"
   })
 }
 
-# HTTPS listener using your ACM cert
+
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.this.arn
+  port              = var.http_port
+  protocol          = "HTTP"
+
+  default_action {
+    type = "redirect"
+
+    redirect {
+      port        = tostring(var.https_port)
+      protocol    = "HTTPS"
+      status_code = "HTTP_301"
+    }
+  }
+}
+
+
 resource "aws_lb_listener" "https" {
   load_balancer_arn = aws_lb.this.arn
-  port              = 443
+  port              = var.https_port
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
   certificate_arn   = var.certificate_arn
@@ -38,7 +64,7 @@ resource "aws_lb_listener" "https" {
   }
 }
 
-# Route53 alias record pointing your domain to the ALB
+
 resource "aws_route53_record" "alias" {
   zone_id = var.route53_zone_id
   name    = var.domain_name
@@ -50,3 +76,4 @@ resource "aws_route53_record" "alias" {
     evaluate_target_health = true
   }
 }
+

@@ -1,3 +1,42 @@
+locals {
+  container_definitions = [
+    {
+      name      = var.container_name
+      image     = var.container_image
+      essential = true
+
+      portMappings = [
+        {
+          containerPort = var.container_port
+          hostPort      = var.container_port
+          protocol      = "tcp"
+        }
+      ]
+
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          awslogs-group         = aws_cloudwatch_log_group.this.name
+          awslogs-region        = var.aws_region
+          awslogs-stream-prefix = var.name_prefix
+        }
+      }
+
+      environment = var.environment
+
+      mountPoints = var.efs_enabled ? [
+        {
+          sourceVolume  = "efs-volume"
+          containerPath = var.efs_mount_path
+          readOnly      = false
+        }
+      ] : []
+    }
+  ]
+}
+
+
+
 resource "aws_ecs_cluster" "this" {
   name = var.cluster_name
 
@@ -11,7 +50,7 @@ resource "aws_cloudwatch_log_group" "this" {
   retention_in_days = 30
 }
 
-# Task execution role (pull images, read secrets)
+
 data "aws_iam_policy_document" "task_exec_assume" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -51,7 +90,7 @@ resource "aws_iam_role_policy" "task_execution_secrets" {
   })
 }
 
-# Task role (for app-level AWS API access; empty now but correct pattern)
+
 data "aws_iam_policy_document" "task_role_assume" {
   statement {
     actions = ["sts:AssumeRole"]
@@ -68,52 +107,6 @@ resource "aws_iam_role" "task_role" {
   assume_role_policy = data.aws_iam_policy_document.task_role_assume.json
 }
 
-locals {
-  container_definitions = [
-    {
-      name      = "memos"
-      image     = var.container_image
-      cpu       = var.task_cpu
-      memory    = var.task_memory
-      essential = true
-      user      = var.container_user
-
-      portMappings = [
-        {
-          containerPort = var.container_port
-          hostPort      = var.container_port
-          protocol      = "tcp"
-        }
-      ]
-
-      logConfiguration = {
-        logDriver = "awslogs"
-        options = {
-          awslogs-group         = aws_cloudwatch_log_group.this.name
-          awslogs-region        = var.aws_region
-          awslogs-stream-prefix = "ecs"
-        }
-      }
-
-      environment = []
-
-      secrets = [
-        for s in var.secrets : {
-          name      = s.name
-          valueFrom = s.valueFrom
-        }
-      ]
-
-      mountPoints = var.efs_enabled ? [
-        {
-          containerPath = var.efs_mount_path
-          sourceVolume  = "efs-volume"
-          readOnly      = false
-        }
-      ] : []
-    }
-  ]
-}
 
 resource "aws_ecs_task_definition" "this" {
   family                   = "${var.name_prefix}-task"
@@ -134,6 +127,7 @@ resource "aws_ecs_task_definition" "this" {
       efs_volume_configuration {
         file_system_id     = var.efs_file_system_id
         transit_encryption = "ENABLED"
+
         authorization_config {
           access_point_id = var.efs_access_point_id
           iam             = "ENABLED"
@@ -147,6 +141,7 @@ resource "aws_ecs_task_definition" "this" {
   })
 }
 
+
 resource "aws_ecs_service" "this" {
   name            = "${var.name_prefix}-svc"
   cluster         = aws_ecs_cluster.this.id
@@ -155,18 +150,22 @@ resource "aws_ecs_service" "this" {
   launch_type     = "FARGATE"
 
   network_configuration {
-    subnets         = var.private_subnet_ids
-    security_groups = [var.ecs_sg_id]
+    subnets          = var.private_subnet_ids
+    security_groups  = [var.ecs_sg_id]
     assign_public_ip = false
   }
 
   load_balancer {
     target_group_arn = var.target_group_arn
-    container_name   = "memos"
+    container_name   = var.container_name
     container_port   = var.container_port
   }
 
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-svc"
   })
+
+  lifecycle {
+  }
 }
+

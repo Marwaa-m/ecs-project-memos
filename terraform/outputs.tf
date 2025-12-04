@@ -32,3 +32,8 @@ output "efs_file_system_id" {
   value       = module.efs.file_system_id
   description = "EFS filesystem ID"
 }
+
+output "route53_zone_id" {
+  description = "ID of the existing Route53 hosted zone"
+  value       = module.route53.hosted_zone_id
+}

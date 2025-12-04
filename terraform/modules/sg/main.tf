@@ -1,82 +1,91 @@
-# ALB security group
+locals {
+  common_egress = {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 resource "aws_security_group" "alb" {
-  name        = "${var.prefix}-alb-sg"
+  name        = "${var.name_prefix}-alb-sg"
   description = "ALB security group"
   vpc_id      = var.vpc_id
 
-  # DRY: generate ingress rules from configurable ports/cidrs
-  dynamic "ingress" {
-    for_each = var.alb_ingress_ports
-    content {
-      from_port   = ingress.value
-      to_port     = ingress.value
-      protocol    = "tcp"
-      cidr_blocks = var.alb_ingress_cidrs
-    }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = var.alb_ingress_cidrs
+  }
+
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = var.alb_ingress_cidrs
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = var.alb_egress_cidrs
+    from_port   = local.common_egress.from_port
+    to_port     = local.common_egress.to_port
+    protocol    = local.common_egress.protocol
+    cidr_blocks = local.common_egress.cidr_blocks
   }
 
   tags = merge(var.tags, {
-    Name = "${var.prefix}-alb-sg"
+    Name = "${var.name_prefix}-alb-sg"
   })
 }
 
-# ECS security group
 resource "aws_security_group" "ecs" {
-  name        = "${var.prefix}-ecs-sg"
+  name        = "${var.name_prefix}-ecs-sg"
   description = "ECS tasks security group"
   vpc_id      = var.vpc_id
 
-  # DRY: all ECS ports from ALB
-  dynamic "ingress" {
-    for_each = var.ecs_ingress_ports
-    content {
-      from_port       = ingress.value
-      to_port         = ingress.value
-      protocol        = "tcp"
-      security_groups = [aws_security_group.alb.id]
-    }
+  ingress {
+    description     = "Traffic from ALB on application port"
+    from_port       = var.app_port
+    to_port         = var.app_port
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb.id]
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = var.ecs_egress_cidrs
+    from_port   = local.common_egress.from_port
+    to_port     = local.common_egress.to_port
+    protocol    = local.common_egress.protocol
+    cidr_blocks = local.common_egress.cidr_blocks
   }
 
   tags = merge(var.tags, {
-    Name = "${var.prefix}-ecs-sg"
+    Name = "${var.name_prefix}-ecs-sg"
   })
 }
 
-# EFS security group
 resource "aws_security_group" "efs" {
-  name        = "${var.prefix}-efs-sg"
+  name        = "${var.name_prefix}-efs-sg"
   description = "EFS security group"
   vpc_id      = var.vpc_id
 
   ingress {
-    from_port       = var.efs_ingress_port
-    to_port         = var.efs_ingress_port
+    description     = "NFS from ECS tasks"
+    from_port       = 2049
+    to_port         = 2049
     protocol        = "tcp"
     security_groups = [aws_security_group.ecs.id]
   }
 
   egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = var.efs_egress_cidrs
+    from_port   = local.common_egress.from_port
+    to_port     = local.common_egress.to_port
+    protocol    = local.common_egress.protocol
+    cidr_blocks = local.common_egress.cidr_blocks
   }
 
   tags = merge(var.tags, {
-    Name = "${var.prefix}-efs-sg"
+    Name = "${var.name_prefix}-efs-sg"
   })
 }

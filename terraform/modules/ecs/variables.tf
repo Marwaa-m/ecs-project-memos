@@ -38,11 +38,6 @@ variable "container_port" {
   type        = number
 }
 
-variable "desired_count" {
-  description = "Desired number of tasks"
-  type        = number
-}
-
 variable "task_cpu" {
   description = "CPU units for the task definition"
   type        = number
@@ -88,6 +83,12 @@ variable "container_user" {
   default     = "1000"
 }
 
+variable "container_name" {
+  description = "Name of the container (for load balancer target group)"
+  type        = string
+  default     = "memos"
+}
+
 variable "secrets" {
   description = "List of secrets to inject into the container"
   type = list(object({
@@ -108,3 +109,18 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "environment" {
+  description = "Static environment variables for the container"
+  type = list(object({
+    name  = string
+    value = string
+  }))
+  default = []
+}
+
+variable "desired_count" {
+  type        = number
+  description = "Number of ECS tasks to run"
+}
+

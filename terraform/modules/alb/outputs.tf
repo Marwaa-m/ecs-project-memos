@@ -12,3 +12,6 @@ output "target_group_arn" {
   description = "ARN of the target group for ECS service"
   value       = aws_lb_target_group.this.arn
 }
+
+
+
