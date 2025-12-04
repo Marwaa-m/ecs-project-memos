@@ -6,7 +6,7 @@ terraform.tfstate.backup
 crash.log
 override.tf
 override.tf.json
-*.tfvars           # <-- You DO NOT commit your real tfvars with secrets
+*.tfvars           
 *.tfvars.json
 .env
 *.pem
