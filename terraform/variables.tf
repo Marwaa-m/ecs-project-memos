@@ -91,11 +91,12 @@ variable "ecs_desired_count" {
   default     = 1
 }
 
-variable "tags" {
-  description = "Base tags to apply to all resources."
-  type        = map(string)
-  default     = {}
-}
+# variable "tags" {
+#   description = "Common tags to apply to all resources"
+#   type        = map(string)
+#   default     = {}
+# }
+
 
 variable "app_port" {
   type        = number
