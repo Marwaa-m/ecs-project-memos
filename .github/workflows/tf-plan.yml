@@ -18,7 +18,6 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # ---- TFLint: Terraform linter ----
       - name: Install TFLint
         run: |
           curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
@@ -29,7 +28,6 @@ jobs:
           tflint --init
           tflint --disable-rule=terraform_unused_declarations
 
-      # ---- AWS + Terraform ----
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
