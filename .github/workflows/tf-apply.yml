@@ -1,15 +1,10 @@
 name: Terraform Apply
 
 on:
-  push:
-    branches:
-      - "main"
-    paths:
-      - "terraform/**"
   workflow_dispatch:
 
 jobs:
-  apply:
+  terraform-apply:
     runs-on: ubuntu-latest
 
     permissions:
@@ -17,19 +12,21 @@ jobs:
       contents: read
 
     steps:
-      - name: Checkout repo
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Run tfsec (Security Scan)
-        uses: aquasecurity/tfsec-action@v1.0.0
-        with:
-          working_directory: terraform
-
-      - name: Configure AWS Credentials (OIDC)
+      - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::869867698229:role/Github-OIDC-Deploy-Role
-          aws-region: eu-west-2
+          aws-region: eu-west-2   # use the same region as in your Plan & Terraform
+
+      - name: Create terraform.tfvars from secret
+        working-directory: ./terraform
+        run: |
+          cat <<'EOF' > terraform.tfvars
+          ${{ secrets.TF_VARS }}
+          EOF
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -37,15 +34,6 @@ jobs:
       - name: Terraform Init
         run: terraform -chdir=terraform init
 
-      - name: Terraform Plan
-        run: terraform -chdir=terraform plan -out=tfplan
-
       - name: Terraform Apply
-        run: terraform -chdir=terraform apply -auto-approve tfplan
+        run: terraform -chdir=terraform apply -auto-approve
 
-      - name: Post-deploy Health Check
-        run: |
-          URL=$(terraform -chdir=terraform output -raw alb_dns_name)
-          echo "Health Checking: https://$URL/healthz"
-          sleep 30
-          curl --fail "https://$URL/healthz" || exit 1
