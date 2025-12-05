@@ -58,12 +58,15 @@ resource "aws_security_group" "ecs" {
     security_groups = [aws_security_group.alb.id]
   }
 
+    # Allow ECS tasks to reach the internet via NAT (AWS APIs, package repos, etc.)
+  # tfsec:ignore:aws-ec2-no-public-egress-sgr
   egress {
-    from_port   = local.common_egress.from_port
-    to_port     = local.common_egress.to_port
-    protocol    = local.common_egress.protocol
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = local.common_egress.cidr_blocks
   }
+
 
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-ecs-sg"
