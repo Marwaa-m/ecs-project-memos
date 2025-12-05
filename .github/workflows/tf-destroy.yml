@@ -1,0 +1,27 @@
+name: Terraform Destroy
+
+on:
+  workflow_dispatch:
+
+jobs:
+  destroy:
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::869867698229:role/Github-OIDC-Deploy-Role
+          aws-region: eu-west-2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Destroy
+        run: terraform -chdir=terraform destroy -auto-approve

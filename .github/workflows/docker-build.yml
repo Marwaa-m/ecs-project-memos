@@ -1,0 +1,56 @@
+name: Docker Build and Push
+
+on:
+  push:
+    paths:
+      - "app/**"
+      - ".github/workflows/docker-build.yml"
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build and Push Image
+    runs-on: ubuntu-latest
+
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::869867698229:role/Github-OIDC-Deploy-Role
+          aws-region: eu-west-2
+
+      - name: Login to ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build Image
+        run: |
+          docker build -t memos-app:latest ./app
+
+      - name: Tag and Push Image
+        run: |
+          IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/memos:latest
+          echo "IMAGE_URI=${IMAGE_URI}" >> $GITHUB_ENV
+          docker tag memos-app:latest $IMAGE_URI
+          docker push $IMAGE_URI
+
+      # Trivy security scan + upload results
+      - name: Security Scan with Trivy
+        uses: aquasecurity/trivy-action@0.20.0
+        with:
+          image-ref: ${{ env.IMAGE_URI }}
+          format: json
+          output: trivy-results.json
+
+      - name: Upload Trivy Report
+        uses: actions/upload-artifact@v4
+        with:
+          name: trivy-security-scan
+          path: trivy-results.json

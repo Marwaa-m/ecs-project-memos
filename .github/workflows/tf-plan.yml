@@ -18,11 +18,18 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Run tfsec (Security Scan)
-        uses: aquasecurity/tfsec-action@v1.0.0
-        with:
-          working_directory: terraform
+      # ---- TFLint: Terraform linter ----
+      - name: Install TFLint
+        run: |
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
+      - name: Run TFLint
+        run: |
+          cd terraform
+          tflint --init
+          tflint
+
+      # ---- AWS + Terraform ----
       - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
