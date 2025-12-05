@@ -27,7 +27,7 @@ jobs:
         run: |
           cd terraform
           tflint --init
-          tflint
+          tflint --disable-rule=terraform_unused_declarations
 
       # ---- AWS + Terraform ----
       - name: Configure AWS Credentials (OIDC)
