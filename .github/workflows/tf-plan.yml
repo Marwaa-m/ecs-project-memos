@@ -23,11 +23,12 @@ jobs:
         run: |
           curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
 
-      - name: Run TFLint
+           - name: Run TFLint
         run: |
           cd terraform
           tflint --init
           tflint --disable-rule=terraform_unused_declarations
+
 
       # ---- AWS + Terraform ----
       - name: Configure AWS Credentials (OIDC)
