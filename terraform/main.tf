@@ -63,19 +63,19 @@ module "alb" {
 
 
 resource "aws_secretsmanager_secret" "memos_admin_username" {
-  name                    = "${local.name_prefix}/memos/admin-username-v3"
+  name                    = "${local.name_prefix}/memos/admin-username-v4"
   description             = "Memos admin username"
   recovery_window_in_days = 7
 }
 
 resource "aws_secretsmanager_secret" "memos_admin_password" {
-  name                    = "${local.name_prefix}/memos/admin-password-v3"
+  name                    = "${local.name_prefix}/memos/admin-password-v4"
   description             = "Memos admin password"
   recovery_window_in_days = 7
 }
 
 resource "aws_secretsmanager_secret" "memos_secret_key" {
-  name                    = "${local.name_prefix}/memos/secret-key-v3"
+  name                    = "${local.name_prefix}/memos/secret-key-v4"
   description             = "Memos secret key for session management"
   recovery_window_in_days = 7
 }
