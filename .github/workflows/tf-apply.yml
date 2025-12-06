@@ -15,6 +15,7 @@ jobs:
       TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
       TF_VAR_memos_admin_username: ${{ secrets.MEMOS_ADMIN_USERNAME }}
       TF_VAR_memos_admin_password: ${{ secrets.MEMOS_ADMIN_PASSWORD }}
+      TF_VAR_route53_zone_name:    ${{ secrets.ROUTE53_ZONE_NAME }}
 
 
     steps:
