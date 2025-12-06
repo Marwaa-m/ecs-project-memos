@@ -11,6 +11,9 @@ jobs:
       id-token: write
       contents: read
 
+    env:
+      TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,14 +22,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::869867698229:role/Github-OIDC-Deploy-Role
-          aws-region: eu-west-2   # use the same region as in your Plan & Terraform
-
-      - name: Create terraform.tfvars from secret
-        working-directory: ./terraform
-        run: |
-          cat <<'EOF' > terraform.tfvars
-          ${{ secrets.TF_VARS }}
-          EOF
+          aws-region: eu-west-2
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
