@@ -3,10 +3,10 @@ FROM node:20-alpine AS frontend-builder
 WORKDIR /web
 
 COPY web/package*.json ./
-RUN npm install
+RUN npm install            # or npm ci if your lockfile is good
 
 COPY web .
-RUN npm run build
+RUN npm run build          # produces /web/dist
 
 # Backend build stage
 FROM golang:1.25-alpine AS backend-builder
@@ -17,10 +17,8 @@ RUN go mod download
 
 COPY . .
 
-RUN rm -rf server/router/frontend/dist && \
-    mkdir -p server/router/frontend/dist && \
-    cp -r /web/dist/* server/router/frontend/dist/
-
+RUN rm -rf server/router/frontend/dist
+COPY --from=frontend-builder /web/dist ./server/router/frontend/dist
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o memos ./cmd/memos
 
@@ -33,7 +31,7 @@ WORKDIR /app
 COPY --from=backend-builder /app/memos .
 
 RUN mkdir -p /var/opt/memos \
-    && chown -R appuser:appgroup /var/opt/memos
+  && chown -R appuser:appgroup /var/opt/memos
 
 ENV MEMOS_MODE=prod \
     MEMOS_DATA=/var/opt/memos \
@@ -43,3 +41,4 @@ USER appuser
 EXPOSE 5230
 
 CMD ["./memos"]
+
