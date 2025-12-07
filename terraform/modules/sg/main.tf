@@ -12,8 +12,6 @@ resource "aws_security_group" "alb" {
   description = "Public ALB security group"
   vpc_id      = var.vpc_id
 
-  # Public HTTP (for redirect to HTTPS)
-  # tfsec:ignore:aws-ec2-no-public-ingress-sgr
   ingress {
     from_port   = 80
     to_port     = 80
@@ -21,17 +19,12 @@ resource "aws_security_group" "alb" {
     cidr_blocks = var.alb_ingress_cidrs
   }
 
-  # Public HTTPS for the app
-  # tfsec:ignore:aws-ec2-no-public-ingress-sgr
   ingress {
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = var.alb_ingress_cidrs
   }
-
-  # Outbound to internet (health checks, OCSP, etc.)
-  # tfsec:ignore:aws-ec2-no-public-egress-sgr
   egress {
     from_port   = 0
     to_port     = 0
@@ -57,9 +50,6 @@ resource "aws_security_group" "ecs" {
     protocol        = "tcp"
     security_groups = [aws_security_group.alb.id]
   }
-
-    # Allow ECS tasks to reach the internet via NAT (AWS APIs, package repos, etc.)
-  # tfsec:ignore:aws-ec2-no-public-egress-sgr
   egress {
     from_port   = 0
     to_port     = 0

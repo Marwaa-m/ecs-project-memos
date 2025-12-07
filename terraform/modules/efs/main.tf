@@ -1,16 +1,5 @@
-/*
-resource "aws_efs_file_system" "this" {
-
-  tags = merge(var.tags, {
-    Name = "${var.name_prefix}-efs"
-  })
-}
-*/
 resource "aws_efs_file_system" "this" {
   encrypted = true
-  # optional:
-  # kms_key_id = aws_kms_key.efs.arn
-
   tags = merge(var.tags, {
     Name = "${var.name_prefix}-efs"
   })
