@@ -17,7 +17,6 @@ jobs:
       TF_VAR_memos_admin_password: ${{ secrets.MEMOS_ADMIN_PASSWORD }}
       TF_VAR_route53_zone_name:    ${{ secrets.ROUTE53_ZONE_NAME }}
 
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -34,6 +33,13 @@ jobs:
       - name: Terraform Init
         run: terraform -chdir=terraform init
 
+      - name: Run tfsec
+        uses: aquasecurity/tfsec-action@v1.0.3
+        with:
+          working_directory: terraform
+          format: sarif
+          output_file: tfsec-results.sarif
+          soft_fail: false  
+
       - name: Terraform Apply
         run: terraform -chdir=terraform apply -auto-approve
-
