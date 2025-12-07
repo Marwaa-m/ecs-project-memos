@@ -7,7 +7,7 @@ crash.log
 override.tf
 override.tf.json
 .tfvars           
-*.tfvars.json
+.tfvars.json
 .env
 .pem
 .aws/
