@@ -16,6 +16,10 @@ jobs:
       id-token: write
       contents: read
 
+    env:
+      AWS_REGION: eu-west-2
+      ECR_REPOSITORY: memos-dev-memos
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -24,7 +28,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::869867698229:role/Github-OIDC-Deploy-Role
-          aws-region: eu-west-2
+          aws-region: ${{ env.AWS_REGION }}
 
       - name: Login to ECR
         id: login-ecr
@@ -36,12 +40,15 @@ jobs:
 
       - name: Tag and Push Image
         run: |
-          IMAGE_URI=${{ steps.login-ecr.outputs.registry }}/memos:latest
+          REGISTRY=${{ steps.login-ecr.outputs.registry }}
+          IMAGE_URI=${REGISTRY}/${{ env.ECR_REPOSITORY }}:latest
           echo "IMAGE_URI=${IMAGE_URI}" >> $GITHUB_ENV
-          docker tag memos-app:latest $IMAGE_URI
-          docker push $IMAGE_URI
 
-      # Trivy security scan + upload results
+          echo "Tagging image as ${IMAGE_URI}"
+          docker tag memos-app:latest "${IMAGE_URI}"
+          docker push "${IMAGE_URI}"
+
+    
       - name: Security Scan with Trivy
         uses: aquasecurity/trivy-action@0.20.0
         with:
