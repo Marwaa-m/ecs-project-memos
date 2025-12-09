@@ -96,5 +96,3 @@ variable "app_port" {
   description = "Port the application listens on."
   default     = 5230
 }
-
-

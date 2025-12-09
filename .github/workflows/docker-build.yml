@@ -48,7 +48,7 @@ jobs:
           docker tag memos-app:latest "${IMAGE_URI}"
           docker push "${IMAGE_URI}"
 
-    
+
       - name: Security Scan with Trivy
         uses: aquasecurity/trivy-action@0.20.0
         with:

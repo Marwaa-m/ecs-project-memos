@@ -7,4 +7,3 @@ locals {
     Owner   = var.owner
   }
 }
-

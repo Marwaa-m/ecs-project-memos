@@ -12,5 +12,3 @@ output "efs_sg_id" {
   description = "Security group ID for EFS"
   value       = aws_security_group.efs.id
 }
-
-

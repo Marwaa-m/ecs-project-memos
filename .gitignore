@@ -6,7 +6,7 @@ terraform.tfstate.backup
 crash.log
 override.tf
 override.tf.json
-.tfvars           
+.tfvars
 .tfvars.json
 .env
 .pem

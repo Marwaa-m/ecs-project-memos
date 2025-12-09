@@ -1,2 +1,0 @@
-# Ecs-Project-Memos
-memos

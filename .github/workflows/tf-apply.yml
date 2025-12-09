@@ -39,7 +39,7 @@ jobs:
           working_directory: terraform
           format: sarif
           output_file: tfsec-results.sarif
-          soft_fail: false  
+          soft_fail: false
 
       - name: Terraform Apply
         run: terraform -chdir=terraform apply -auto-approve
