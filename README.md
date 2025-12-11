@@ -18,7 +18,8 @@
 ---
 ## Architecture Diagram
 
-<img src="images/architecture-diagram.gif" alt="Architecture-Diagram" width="900" />
+<img src="images/architecture-diagram.png" alt="Architecture Diagram" width="900" />
+
 
 
 ---
