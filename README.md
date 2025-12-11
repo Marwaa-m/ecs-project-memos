@@ -162,7 +162,7 @@ Terraform apply
 
 6. Access the deployed Memos application via your domain.
 
-
+---
 ## Deployment Visuals
 
 ### Memos Application Running
