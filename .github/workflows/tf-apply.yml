@@ -15,7 +15,7 @@ jobs:
       TF_VAR_domain_name: ${{ secrets.DOMAIN_NAME }}
       TF_VAR_memos_admin_username: ${{ secrets.MEMOS_ADMIN_USERNAME }}
       TF_VAR_memos_admin_password: ${{ secrets.MEMOS_ADMIN_PASSWORD }}
-      TF_VAR_route53_zone_name:    ${{ secrets.ROUTE53_ZONE_NAME }}
+      TF_VAR_route53_zone_name: ${{ secrets.ROUTE53_ZONE_NAME }}
 
     steps:
       - name: Checkout repository
@@ -38,7 +38,7 @@ jobs:
         with:
           working_directory: terraform
           format: sarif
-        soft_fail: false
+          soft_fail: false
 
       - name: Terraform Apply
         run: terraform -chdir=terraform apply -auto-approve
