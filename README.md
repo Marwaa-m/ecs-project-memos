@@ -1,8 +1,8 @@
 # MEMOS ECS Deployment on AWS ECS Fargate
 
 
-### This project provides a production-ready deployment of the Memos application on AWS ECS Fargate,provisioned using Terraform and deployed through GitHub Actions.
-### The setup includes a multi-AZ VPC, secure HTTPS routing, scalable ECS tasks, persistent EFS storage, ACM-managed certificates, and automated CI/CD pipelines.
+This project provides a production-ready deployment of the Memos application on AWS ECS Fargate,provisioned using Terraform and deployed through GitHub Actions.
+The setup includes a multi-AZ VPC, secure HTTPS routing, scalable ECS tasks, persistent EFS storage, ACM-managed certificates, and automated CI/CD pipelines.
 
 ---
 
